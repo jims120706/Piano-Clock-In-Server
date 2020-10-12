@@ -1,0 +1,105 @@
+buildscript{
+    repositories {
+//        maven{ url 'https://mirrors.huaweicloud.com/repository/maven/'}
+        maven { url 'http://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        maven { url 'http://maven.youzanyun.com/repository/maven-releases/'}
+        mavenCentral()
+        maven { url "https://jcenter.bintray.com" }
+    }
+}
+
+plugins {
+    id "net.ltgt.apt-eclipse" version "0.21"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "application"
+    id "io.freefair.lombok" version "5.1.0"
+}
+
+
+
+version "0.1"
+group "com.kain.pianocheck"
+
+repositories {
+    maven{ url 'https://mirrors.huaweicloud.com/repository/maven/'}
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+    maven{ url 'https://maven.aliyun.com/repository/google'}
+}
+
+configurations {
+    // for dependencies that are needed for development only
+    developmentOnly
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor "org.projectlombok:lombok:1.18.10"
+    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapstructVersion"
+    implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    implementation "io.micronaut:micronaut-inject"
+    implementation "io.micronaut:micronaut-validation"
+    implementation "io.micronaut:micronaut-runtime"
+    implementation "javax.annotation:javax.annotation-api"
+    implementation "io.micronaut:micronaut-http-server-netty"
+    implementation "io.micronaut:micronaut-http-client"
+//    implementation "io.micronaut.security:micronaut-security-jwt"
+    compile "io.micronaut:micronaut-security-jwt"
+
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    compile "io.micronaut.data:micronaut-data-jdbc:$micronautDataVersion"
+    compile 'mysql:mysql-connector-java:8.0.16'
+    compile 'io.micronaut:micronaut-http-client'
+
+//    runtime 'io.micronaut.sql:micronaut-jdbc-hikari'
+    runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
+
+    compile 'org.apache.commons:commons-lang3:3.9'
+    compile 'commons-codec:commons-codec:1.9'
+    testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    compile 'javax.servlet:servlet-api:2.5'
+    compile 'org.jsoup:jsoup:1.11.3'
+    compile 'com.google.zxing:core:3.3.3'
+    compile 'com.google.zxing:javase:3.3.3'
+    compile 'com.google.guava:guava:28.0-jre'
+    compile 'org.jsoup:jsoup:1.11.3'
+    compile group: 'com.qcloud', name: 'cos_api', version: '5.6.14'
+    compile "commons-beanutils:commons-beanutils:1.9.3"
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    compile "io.swagger.core.v3:swagger-annotations"
+
+}
+
+test.classpath += configurations.developmentOnly
+
+mainClassName = "com.piano.Application"
+sourceCompatibility = 11
+targetCompatibility = 11
+// use JUnit 5 platform
+test {
+    useJUnitPlatform()
+}
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
+    options.compilerArgs.add('-parameters')
+
+    options.fork = true
+    options.forkOptions.jvmArgs << '-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop,rapipdf.enabled=true,rapipdf.include-api-list=true,rapipdf.include-example=true'
+}
+
+shadowJar {
+    mergeServiceFiles()
+    archiveVersion = ''
+    archiveClassifier = ''
+    exclude '*-test.*'
+    exclude '*-local.*'
+}
+
+run.classpath += configurations.developmentOnly
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')

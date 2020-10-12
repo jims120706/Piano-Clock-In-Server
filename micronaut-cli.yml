@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: com.yaeher
+---
+testFramework: junit
+sourceLanguage: java
