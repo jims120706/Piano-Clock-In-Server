@@ -47,7 +47,6 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
-//    implementation "io.micronaut.security:micronaut-security-jwt"
     compile "io.micronaut:micronaut-security-jwt"
 
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
@@ -55,7 +54,6 @@ dependencies {
     compile 'mysql:mysql-connector-java:8.0.16'
     compile 'io.micronaut:micronaut-http-client'
 
-//    runtime 'io.micronaut.sql:micronaut-jdbc-hikari'
     runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
 
     compile 'org.apache.commons:commons-lang3:3.9'

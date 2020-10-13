@@ -1,4 +1,4 @@
-package com.piano.auth;
+package com.piano.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;

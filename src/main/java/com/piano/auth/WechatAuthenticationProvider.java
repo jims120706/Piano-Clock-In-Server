@@ -1,8 +1,12 @@
 package com.piano.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.piano.beans.UserInfo;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import com.piano.beans.db.UserInfo;
+import com.piano.beans.wechat.Code2SessionRsp;
+import com.piano.beans.wechat.WechatCodeSession;
+import com.piano.constants.AuthConstants;
+import com.piano.services.UserInfoService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.*;
 import io.reactivex.Flowable;
@@ -11,14 +15,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Singleton
 public class WechatAuthenticationProvider implements AuthenticationProvider {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WechatAuthenticationProvider.class);
+    private static final ObjectMapper sObjectMapper = new ObjectMapper();
+
+    @Inject
+    UserInfoService userInfoService;
+
 
     @Override
     public Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
@@ -29,14 +35,22 @@ public class WechatAuthenticationProvider implements AuthenticationProvider {
         return Flowable.just(new UserDetails("aaa", Collections.emptyList(), new HashMap<>()));
     }
 
-   /* @Override
+    @Override
     public Publisher<AuthenticationResponse> authenticate(HttpRequest<?> request, AuthenticationRequest<?, ?> authenticationRequest) {
-        String openId = authenticationRequest.getIdentity().toString();
-        if(openId.equalsIgnoreCase("aaa")){
+        String userInfoStr = authenticationRequest.getIdentity().toString();
+        try {
+            UserInfo userInfo = sObjectMapper.readValue(Objects.requireNonNull(userInfoStr), UserInfo.class);
+            String openId = userInfo.getOpenId();
+            Optional<UserInfo> userInfoOptional = userInfoService.findByOpenId(openId);
+            if(userInfoOptional.isEmpty()){
+                userInfoService.create(userInfo);
+            }
+            return Flowable.just(new UserDetails(String.valueOf(userInfo.getId()), Collections.emptyList(), new HashMap<>()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return Flowable.just(new AuthenticationFailed(AuthenticationFailureReason.UNKNOWN));
         }
-        return Flowable.just(new UserInfo("aaa",openId,"null"));
-    }*/
+    }
     /**
      * wxcode获取sessionkey
      *

@@ -1,8 +1,7 @@
-package com.piano.auth;
+package com.piano.beans.wechat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.piano.beans.WechatBaseRsp;
 import io.micronaut.core.annotation.Introspected;
 
 

@@ -26,3 +26,8 @@ datasources:
     dialect: MYSQL
     driver-class-name: com.mysql.cj.jdbc.Driver
     max-lifetime: 180000
+
+
+wechat:
+  appid: wx7da451220f27323b
+  appsecret: 327dfe29a57b1b1fe51af4c0c93d515d

@@ -1,4 +1,4 @@
-package com.piano.auth;
+package com.piano.beans.wechat;
 
 import lombok.Getter;
 import lombok.Setter;

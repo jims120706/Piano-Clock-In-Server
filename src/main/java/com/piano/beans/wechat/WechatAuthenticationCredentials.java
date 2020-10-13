@@ -1,6 +1,7 @@
-package com.piano.auth;
+package com.piano.beans.wechat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.piano.beans.db.UserInfo;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.security.authentication.AuthenticationRequest;
 import lombok.EqualsAndHashCode;
@@ -19,10 +20,10 @@ public class WechatAuthenticationCredentials implements AuthenticationRequest<St
     final String secret = "";
     @NotBlank
     @NotNull
-    private String openId;
+    private String userInfo;
     @Override
     public String getIdentity() {
-        return openId;
+        return userInfo;
     }
 
     @Override

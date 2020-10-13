@@ -1,5 +1,6 @@
-package com.piano.auth;
+package com.piano.controllers;
 
+import com.piano.beans.wechat.WechatAuthenticationCredentials;
 import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -21,7 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import javax.inject.Inject;
 
 
-@Controller("/consultation/authentication")
+@Controller("/authentication")
 @Secured(SecurityRule.IS_ANONYMOUS)
 public class AuthenticationController{
     protected final Authenticator authenticator;
@@ -39,7 +40,8 @@ public class AuthenticationController{
 
 
     @Operation(summary = "微信openid登录")
-    @Post("/openid")
+    @Post("/login")
+    @Secured(SecurityRule.IS_ANONYMOUS)
     public Single<HttpResponse> loginWithOpenId(@Body WechatAuthenticationCredentials authenticationCredentials, HttpRequest<?> request){
         return doAuthentication(authenticationCredentials, request);
     }

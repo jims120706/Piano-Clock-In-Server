@@ -1,4 +1,4 @@
-package com.piano.beans;
+package com.piano.beans.wechat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

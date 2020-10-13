@@ -1,4 +1,4 @@
-package com.piano.auth;
+package com.piano.constants;
 
 public class AuthConstants {
     public final static String ATTR_OPENID = "openid";
