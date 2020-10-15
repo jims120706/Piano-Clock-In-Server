@@ -1,7 +1,5 @@
 package com.piano.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.piano.beans.wechat.WechatAccessTokenRsp;
 import com.piano.beans.wechat.WechatCodeSession;
 import com.piano.net.RespUtils;
 import com.piano.services.WechatApiService;
@@ -26,7 +24,7 @@ public class WechatApiController {
     WechatApiService wechatApiService;
 
     @Get("/getSessionKey")
-    public HttpResponse getSessionKey(String code) throws JsonProcessingException {
+    public HttpResponse getSessionKey(String code) {
         Optional<WechatCodeSession> session = wechatApiService.getSessionKey(code);
         if(session.isEmpty()){
             return RespUtils.BAD_REQUEST("系统异常");
@@ -38,16 +36,12 @@ public class WechatApiController {
 
     @Get("/getAccessToken")
     public HttpResponse getAccessToken() {
-        Optional<WechatAccessTokenRsp> webAccessTokenRsp = wechatApiService.getOpenIdByWxCode();
-        if(webAccessTokenRsp.isEmpty()){
-            return RespUtils.BAD_REQUEST("系统异常");
-        }
-        return RespUtils.SUCCESS(webAccessTokenRsp);
+        return RespUtils.SUCCESS(wechatApiService.getAccessToken());
     }
 
     @Get("/userInfo")
-    public HttpResponse getUserInfoFromCode(String accessToken,String openId){
-        Optional<String> userInfo = wechatApiService.getUserInfoWithoutFollowing(accessToken,openId);
+    public HttpResponse getUserInfoFromCode(){
+        Optional<String> userInfo = wechatApiService.getUserInfoWithoutFollowing(wechatApiService.getAccessToken().getAccessToken(),"og4G35HAQQj14tPPGFbIdRv263e4");
         if(userInfo.isPresent()){
             return HttpResponse.status(HttpStatus.OK).body(userInfo.get());
         }else{

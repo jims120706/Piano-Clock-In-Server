@@ -1,5 +1,6 @@
 package com.piano.beans;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.micronaut.data.annotation.DateCreated;
 import io.micronaut.data.annotation.GeneratedValue;
 import io.micronaut.data.annotation.Id;
@@ -15,5 +16,6 @@ public class BaseBean {
     @Id
     private int id;
     @DateCreated
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 }

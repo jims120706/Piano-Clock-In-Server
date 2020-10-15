@@ -12,8 +12,8 @@ public class UserInfoService {
     @Inject
     UserInfoRepository repository;
 
-    public void create(UserInfo userInfo){
-        repository.save(userInfo);
+    public UserInfo create(UserInfo userInfo){
+        return repository.save(userInfo);
     }
 
     public Optional<UserInfo> findByOpenId(String openId) {

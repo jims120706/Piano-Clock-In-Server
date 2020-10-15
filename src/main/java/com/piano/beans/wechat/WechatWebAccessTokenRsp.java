@@ -1,8 +1,10 @@
 package com.piano.beans.wechat;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
 public class WechatWebAccessTokenRsp extends WechatBaseRsp {
     private String accessToken;
     private int expiresIn;

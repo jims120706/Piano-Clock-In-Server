@@ -1,3 +1,4 @@
+/*
 package com.piano.net;
 
 import io.micronaut.core.async.publisher.Publishers;
@@ -9,9 +10,11 @@ import io.micronaut.http.filter.HttpServerFilter;
 import io.micronaut.http.filter.ServerFilterChain;
 import org.reactivestreams.Publisher;
 
+*/
 /**
  * 腾讯云的七层负载均衡不支持长连接，每次和后端服务通信完就会断开连接。这里暂时强行修改让服务也只支持短连接。否则每次回包后都会抛出一个reset by peer异常
- */
+ *//*
+
 @Filter("/**")
 public class TencentCloudFilter implements HttpServerFilter {
     @Override
@@ -24,3 +27,4 @@ public class TencentCloudFilter implements HttpServerFilter {
     }
 
 }
+*/

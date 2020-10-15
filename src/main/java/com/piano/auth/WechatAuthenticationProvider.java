@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.piano.beans.db.UserInfo;
 import com.piano.beans.wechat.Code2SessionRsp;
-import com.piano.beans.wechat.WechatCodeSession;
 import com.piano.constants.AuthConstants;
 import com.piano.services.UserInfoService;
 import io.micronaut.http.HttpRequest;
@@ -38,13 +37,17 @@ public class WechatAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Publisher<AuthenticationResponse> authenticate(HttpRequest<?> request, AuthenticationRequest<?, ?> authenticationRequest) {
         String userInfoStr = authenticationRequest.getIdentity().toString();
+        logger.info("request params:{}",userInfoStr);
+
         try {
             UserInfo userInfo = sObjectMapper.readValue(Objects.requireNonNull(userInfoStr), UserInfo.class);
             String openId = userInfo.getOpenId();
             Optional<UserInfo> userInfoOptional = userInfoService.findByOpenId(openId);
             if(userInfoOptional.isEmpty()){
-                userInfoService.create(userInfo);
+                logger.info("不存在的openId,创建新用户");
+                userInfo = userInfoService.create(userInfo);
             }
+            logger.info("返回数据openId:{},userName:{}",openId,userInfo.getNickName());
             return Flowable.just(new UserDetails(String.valueOf(userInfo.getId()), Collections.emptyList(), new HashMap<>()));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
