@@ -20,7 +20,7 @@ micronaut:
 
 datasources:
   default:
-    jdbc-url: jdbc:mysql://47.112.209.215:3306/piano?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useColumnNamesInFindColumn=true
+    jdbc-url: jdbc:mysql://127.0.0.1:3306/piano?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useColumnNamesInFindColumn=true
     username: root
     password: 'root'
     dialect: MYSQL

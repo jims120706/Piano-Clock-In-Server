@@ -1,5 +1,6 @@
 package com.piano.exception.handler;
 
+import com.piano.exception.DailyCheckException;
 import com.piano.exception.WechatException;
 import com.piano.net.RespUtils;
 import io.micronaut.context.annotation.Requires;
@@ -12,10 +13,10 @@ import javax.inject.Singleton;
 
 @Produces
 @Singleton
-@Requires(classes = {WechatException.class})
-public class WechatExceptionHandler implements ExceptionHandler<WechatException, HttpResponse> {
+@Requires(classes = {DailyCheckException.class})
+public class DailyCheckExceptionHandler implements ExceptionHandler<DailyCheckException, HttpResponse> {
     @Override
-    public HttpResponse handle(HttpRequest request, WechatException exception) {
-        return RespUtils.BAD_REQUEST("微信接口异常");
+    public HttpResponse handle(HttpRequest request, DailyCheckException exception) {
+        return RespUtils.BAD_REQUEST(exception.getMessage());
     }
 }

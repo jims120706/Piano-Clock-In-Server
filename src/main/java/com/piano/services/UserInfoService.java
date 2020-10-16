@@ -12,11 +12,15 @@ public class UserInfoService {
     @Inject
     UserInfoRepository repository;
 
-    public UserInfo create(UserInfo userInfo){
+    public UserInfo create(UserInfo userInfo) {
         return repository.save(userInfo);
     }
 
     public Optional<UserInfo> findByOpenId(String openId) {
         return repository.findByOpenId(openId);
+    }
+
+    public Optional<UserInfo> findById(int id) {
+        return repository.findById(id);
     }
 }

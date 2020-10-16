@@ -22,11 +22,11 @@ public class JacksonUtils {
         return null;
     }
 
-    public static String toJson(WechatAccessTokenRsp wechatAccessTokenRsp) {
+    public static String toJson(Object obj) {
         try {
-            return mapper.writeValueAsString(wechatAccessTokenRsp);
+            return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            logger.error("to json error:{}", wechatAccessTokenRsp);
+            logger.error("to json error:{}", obj);
         }
         return null;
     }

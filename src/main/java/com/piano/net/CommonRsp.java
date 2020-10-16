@@ -1,63 +1,40 @@
 package com.piano.net;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
 @Schema(name="CommonRsp")
 public class CommonRsp<TPayload> {
-    @AllArgsConstructor()
-    @Getter
-    @Setter
-    @Schema(description = "返回体")
-    class PayloadWrapper{
-        private int code;
-        private String msg;
-        private TPayload item;
+    private int code;
+    private String msg;
+    private TPayload item;
+
+    public CommonRsp(int code, String msg, TPayload item) {
+        this.code = code;
+        this.msg = msg;
+        this.item = item;
     }
 
-    @JsonProperty(value = "result")
-    protected PayloadWrapper payloadWrapper;
-
-    public CommonRsp(int code, String msg, TPayload item){
-        payloadWrapper = new PayloadWrapper(code, msg, item);
-    }
-
-    @JsonIgnore
     public int getCode() {
-        return payloadWrapper.code;
+        return code;
     }
 
-    @JsonIgnore
     public void setCode(int code) {
-        payloadWrapper.code = code;
+        this.code = code;
     }
 
-    @JsonIgnore
     public String getMsg() {
-        return payloadWrapper.msg;
+        return msg;
     }
 
-    @JsonIgnore
     public void setMsg(String msg) {
-        payloadWrapper.msg = msg;
+        this.msg = msg;
     }
 
-    @JsonIgnore
     public TPayload getItem() {
-        return payloadWrapper.item;
+        return item;
     }
 
-    @JsonIgnore
     public void setItem(TPayload item) {
-        payloadWrapper.item = item;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("{code: %d, msg: %s}", payloadWrapper.code, payloadWrapper.msg);
+        this.item = item;
     }
 }
