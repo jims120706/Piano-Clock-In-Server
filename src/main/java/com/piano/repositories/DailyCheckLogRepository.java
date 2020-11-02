@@ -11,4 +11,6 @@ import java.util.List;
 @JdbcRepository(dialect= Dialect.MYSQL)
 public interface DailyCheckLogRepository extends CrudRepository<DailyCheckLog, Integer> {
     List<DailyCheckLog> findByUserIdAndCreateTimeBetween(int userId, LocalDateTime today, LocalDateTime plusDays);
+
+    List<DailyCheckLog> findByUserIdAndDailyCheckId(long userId,long dailyCheckId);
 }

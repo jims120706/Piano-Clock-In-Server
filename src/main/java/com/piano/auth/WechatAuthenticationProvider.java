@@ -9,11 +9,14 @@ import com.piano.services.UserInfoService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.*;
 import io.reactivex.Flowable;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.reactivestreams.Publisher;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Singleton
@@ -46,10 +49,12 @@ public class WechatAuthenticationProvider implements AuthenticationProvider {
             if(userInfoOptional.isEmpty()){
                 logger.info("不存在的openId,创建新用户");
                 userInfo = userInfoService.create(userInfo);
+            }else{
+                BeanUtils.copyProperties(userInfo,userInfoOptional.get());
             }
             logger.info("返回数据openId:{},userName:{}",openId,userInfo.getNickName());
             return Flowable.just(new UserDetails(String.valueOf(userInfo.getId()), Collections.emptyList(), new HashMap<>()));
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             return Flowable.just(new AuthenticationFailed(AuthenticationFailureReason.UNKNOWN));
         }

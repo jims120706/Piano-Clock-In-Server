@@ -13,16 +13,17 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: "aEok5Q9FuKljCpUFqNK7T18yxGxCaClQ"
+              secret: "`H3hh8dTL;Acl6{Jv3niKN)%Ze(c_3(E"
               jws-algorithm: HS256
         generator:
           access-token-expiration: 360000
 
 datasources:
   default:
+#    jdbc-url: jdbc:mysql://81.71.84.22:3306/piano?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useColumnNamesInFindColumn=true
     jdbc-url: jdbc:mysql://127.0.0.1:3306/piano?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useColumnNamesInFindColumn=true
     username: root
-    password: 'root'
+    password: 'pZMwGLAnLeBl8EF1Xx93FEx8PYTBe2C6'
     dialect: MYSQL
     driver-class-name: com.mysql.cj.jdbc.Driver
     max-lifetime: 180000

@@ -1,7 +1,9 @@
 package com.piano.controllers;
 
 import com.piano.beans.db.DailyCheck;
+import com.piano.beans.db.DailyCheckLog;
 import com.piano.beans.db.UserInfo;
+import com.piano.beans.request.SerchCondition;
 import com.piano.exception.DailyCheckException;
 import com.piano.net.RespUtils;
 import com.piano.services.DailyCheckService;
@@ -9,6 +11,7 @@ import com.piano.services.UserInfoService;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
@@ -19,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Controller("/dailycheck")
@@ -37,6 +41,36 @@ public class DailyCheckController {
         BigDecimal hours = dailycheckService.hoursTotal(userInfo);
         return RespUtils.SUCCESS(hours);
     }
+
+    @Get("/hoursWeek")
+    public HttpResponse hoursWeek(Authentication authentication) {
+        UserInfo userInfo = getUserInfo(authentication);
+        List<DailyCheck> weeksCheck = dailycheckService.hoursWeek(userInfo);
+        return RespUtils.SUCCESS(weeksCheck);
+    }
+
+    @Get("/hoursMonths")
+    public HttpResponse hoursMonths(Authentication authentication) {
+        UserInfo userInfo = getUserInfo(authentication);
+        List<DailyCheck> monthsCheck = dailycheckService.hoursMonth(userInfo);
+        return RespUtils.SUCCESS(monthsCheck);
+    }
+
+
+    @Post("/findByCondition")
+    public HttpResponse findByCondition(Authentication authentication, @Body SerchCondition condition) {
+        UserInfo userInfo = getUserInfo(authentication);
+        Page<DailyCheck> monthsCheck = dailycheckService.findByCondition(userInfo,condition);
+        return RespUtils.SUCCESS(monthsCheck);
+    }
+
+    @Post("/details")
+    public HttpResponse details(Authentication authentication,int dailycheckId) {
+        UserInfo userInfo = getUserInfo(authentication);
+        List<DailyCheckLog> monthsCheck = dailycheckService.checkDetails(userInfo,dailycheckId);
+        return RespUtils.SUCCESS(monthsCheck);
+    }
+
 
     @Get("/pages")
     public HttpResponse pages(Authentication authentication,int index,int size) {

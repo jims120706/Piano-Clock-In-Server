@@ -3,6 +3,7 @@ package com.piano.services;
 import com.piano.beans.db.DailyCheck;
 import com.piano.beans.db.DailyCheckLog;
 import com.piano.beans.db.UserInfo;
+import com.piano.beans.request.SerchCondition;
 import com.piano.constants.CommonConstants;
 import com.piano.exception.DailyCheckException;
 import com.piano.repositories.DailyCheckLogRepository;
@@ -10,6 +11,7 @@ import com.piano.repositories.DailyCheckRepository;
 import com.piano.utils.JacksonUtils;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import org.joda.time.Weeks;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
@@ -17,6 +19,7 @@ import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,6 +73,7 @@ public class DailyCheckService {
             dailyCheck.setHours(newHours);
             dailyCheckRepository.update(dailyCheck);
         }
+        checkLog.setDailyCheckId(dailyCheck.getId());
         checkLog.setStartTime(startTime);
         checkLog.setEndTime(endTime);
         checkLog.setUserId(userInfo.getId());
@@ -99,10 +103,30 @@ public class DailyCheckService {
     }
 
     public BigDecimal hoursTotal(UserInfo userInfo) {
-        return dailyCheckRepository.sumHoursByUserId(userInfo.getId()).get();
+        return dailyCheckRepository.sumHoursByUserId(userInfo.getId()).orElse(BigDecimal.ZERO);
     }
 
     public Page<DailyCheck> dailyCheckHoursPages(UserInfo userInfo, Pageable from) {
         return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),from);
+    }
+
+    public List<DailyCheck> hoursWeek(UserInfo userInfo) {
+        LocalDateTime startTime = LocalDateTime.now().with(DayOfWeek.MONDAY);
+        LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
+        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
+    }
+
+    public List<DailyCheck> hoursMonth(UserInfo userInfo) {
+        LocalDateTime startTime = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
+        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
+    }
+
+    public Page<DailyCheck> findByCondition(UserInfo userInfo, SerchCondition condition) {
+        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),condition.getStartTime(),condition.getEndTime(),Pageable.from(condition.getIndex(),condition.getSize()));
+    }
+
+    public List<DailyCheckLog> checkDetails(UserInfo userInfo, int dailyCheckId) {
+        return dailyCheckLogRepository.findByUserIdAndDailyCheckId(userInfo.getId(),dailyCheckId);
     }
 }

@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @MappedEntity(value = "dailyCheckLog",namingStrategy = NamingStrategies.UpperCase.class)
 public class DailyCheckLog extends BaseBean {
     private int userId;
+    private int dailyCheckId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

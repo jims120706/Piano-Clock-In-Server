@@ -23,11 +23,11 @@ public class YaeherJWTClaimsSetGenerator extends JWTClaimsSetGenerator {
 
     @Override
     protected void populateIss(JWTClaimsSet.Builder builder) {
-        builder.issuer("YaeherAPI");
+        builder.issuer("daka");
     }
 
     @Override
     protected void populateAud(JWTClaimsSet.Builder builder) {
-        builder.audience("YaeherAPI");
+        builder.audience("daka");
     }
 }
