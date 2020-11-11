@@ -4,6 +4,7 @@ import com.piano.beans.db.DailyCheck;
 import com.piano.beans.db.DailyCheckLog;
 import com.piano.beans.db.UserInfo;
 import com.piano.beans.request.SerchCondition;
+import com.piano.beans.vo.HoursTotalVO;
 import com.piano.constants.CommonConstants;
 import com.piano.exception.DailyCheckException;
 import com.piano.repositories.DailyCheckLogRepository;
@@ -11,7 +12,6 @@ import com.piano.repositories.DailyCheckRepository;
 import com.piano.utils.JacksonUtils;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
-import org.joda.time.Weeks;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
@@ -77,6 +77,7 @@ public class DailyCheckService {
         checkLog.setStartTime(startTime);
         checkLog.setEndTime(endTime);
         checkLog.setUserId(userInfo.getId());
+        checkLog.setHours(hours);
         dailyCheckLogRepository.save(checkLog);
     }
 
@@ -100,6 +101,24 @@ public class DailyCheckService {
             dailyCheck.setHours(dailyCheck.getHours().add(hours));
             dailyCheckRepository.update(dailyCheck);
         }
+        DailyCheckLog checkLog = new DailyCheckLog();
+        checkLog.setDailyCheckId(dailyCheck.getId());
+        checkLog.setStartTime(dateTime);
+        checkLog.setEndTime(dateTime);
+        checkLog.setUserId(userInfo.getId());
+        //补卡类型为2
+        checkLog.setType(2);
+        checkLog.setHours(hours);
+        dailyCheckLogRepository.save(checkLog);
+    }
+
+    public HoursTotalVO userDetailInfo(UserInfo userInfo){
+        HoursTotalVO hoursTotalVO = new HoursTotalVO();
+        hoursTotalVO.setToday(this.hoursToday(userInfo));
+        hoursTotalVO.setWeek(this.hoursWeek(userInfo));
+        hoursTotalVO.setMonth(this.hoursMonth(userInfo));
+        hoursTotalVO.setTotal(this.hoursTotal(userInfo));
+        return hoursTotalVO;
     }
 
     public BigDecimal hoursTotal(UserInfo userInfo) {
@@ -111,22 +130,33 @@ public class DailyCheckService {
     }
 
     public List<DailyCheck> hoursWeek(UserInfo userInfo) {
-        LocalDateTime startTime = LocalDateTime.now().with(DayOfWeek.MONDAY);
+        LocalDateTime startTime = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay();
         LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
-        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
+        return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
     }
 
     public List<DailyCheck> hoursMonth(UserInfo userInfo) {
         LocalDateTime startTime = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
-        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
+        return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
     }
 
     public Page<DailyCheck> findByCondition(UserInfo userInfo, SerchCondition condition) {
-        return dailyCheckRepository.findByUserIdOrderByCheckDateDesc(userInfo.getId(),condition.getStartTime(),condition.getEndTime(),Pageable.from(condition.getIndex(),condition.getSize()));
+        return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),condition.getStartTime(),condition.getEndTime(),Pageable.from(condition.getIndex(),condition.getSize()));
     }
 
     public List<DailyCheckLog> checkDetails(UserInfo userInfo, int dailyCheckId) {
         return dailyCheckLogRepository.findByUserIdAndDailyCheckId(userInfo.getId(),dailyCheckId);
+    }
+
+    public BigDecimal hoursToday(UserInfo userInfo) {
+        LocalDateTime startTime = LocalDate.now().atStartOfDay();
+        LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
+        List<DailyCheckLog> byUserIdAndStartTimeBetween = dailyCheckLogRepository.findByUserIdAndStartTimeBetween(userInfo.getId(), startTime, endTime);
+        BigDecimal bigDecimal = new BigDecimal(0);
+        for (DailyCheckLog x : byUserIdAndStartTimeBetween) {
+            bigDecimal = bigDecimal.add(x.getHours());
+        }
+        return bigDecimal;
     }
 }

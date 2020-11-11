@@ -4,6 +4,7 @@ import com.piano.beans.db.DailyCheck;
 import com.piano.beans.db.DailyCheckLog;
 import com.piano.beans.db.UserInfo;
 import com.piano.beans.request.SerchCondition;
+import com.piano.beans.vo.HoursTotalVO;
 import com.piano.exception.DailyCheckException;
 import com.piano.net.RespUtils;
 import com.piano.services.DailyCheckService;
@@ -35,11 +36,27 @@ public class DailyCheckController {
     @Inject
     UserInfoService userInfoService;
 
+
+    @Get("/userTotalHours")
+    public HttpResponse userTotalHours(Authentication authentication) {
+        UserInfo userInfo = getUserInfo(authentication);
+        HoursTotalVO hoursTotalVO = dailycheckService.userDetailInfo(userInfo);
+        return RespUtils.SUCCESS(hoursTotalVO);
+    }
+
+
+    @Get("/hoursToday")
+    public HttpResponse hoursToday(Authentication authentication) {
+        UserInfo userInfo = getUserInfo(authentication);
+        BigDecimal hours = dailycheckService.hoursToday(userInfo);
+        return RespUtils.SUCCESS(hours);
+    }
+
     @Get("/hoursTotal")
     public HttpResponse hoursTotal(Authentication authentication) {
         UserInfo userInfo = getUserInfo(authentication);
-        BigDecimal hours = dailycheckService.hoursTotal(userInfo);
-        return RespUtils.SUCCESS(hours);
+        BigDecimal hoursTotal = dailycheckService.hoursTotal(userInfo);
+        return RespUtils.SUCCESS(hoursTotal);
     }
 
     @Get("/hoursWeek")

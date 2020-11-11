@@ -22,8 +22,8 @@ public interface DailyCheckRepository extends CrudRepository<DailyCheck, Integer
 
     Page<DailyCheck> findByUserIdOrderByCheckDateDesc(int id, Pageable from);
 
-    List<DailyCheck> findByUserIdOrderByCheckDateDesc(int id, LocalDateTime startTime, LocalDateTime endTime);
+    List<DailyCheck> findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(int id, LocalDateTime startTime, LocalDateTime endTime);
 
-    Page<DailyCheck> findByUserIdOrderByCheckDateDesc(int id, LocalDateTime startTime, LocalDateTime endTime, Pageable page);
+    Page<DailyCheck> findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(int id, LocalDateTime startTime, LocalDateTime endTime, Pageable page);
 
 }

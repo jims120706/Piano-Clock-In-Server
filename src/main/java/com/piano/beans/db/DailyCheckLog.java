@@ -11,6 +11,7 @@ import io.micronaut.data.model.naming.NamingStrategies;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 public class DailyCheckLog extends BaseBean {
     private int userId;
     private int dailyCheckId;
+    private int type;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -27,4 +29,5 @@ public class DailyCheckLog extends BaseBean {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endTime;
+    private BigDecimal hours;
 }
