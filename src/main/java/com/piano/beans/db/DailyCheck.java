@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.piano.beans.BaseBean;
 import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.Transient;
 import io.micronaut.data.model.naming.NamingStrategies;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,4 +28,7 @@ public class DailyCheck extends BaseBean {
     private int userId;
     private int voiceId;
     private int videoId;
+
+    @Transient
+    private int month;
 }

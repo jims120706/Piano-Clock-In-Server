@@ -14,4 +14,6 @@ public class HoursTotalVO {
     private BigDecimal today;
     private List<DailyCheck> week;
     private List<DailyCheck> month;
+    private List<DailyCheck> year;
+
 }

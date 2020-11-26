@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.piano.beans.db.UserInfo;
 import com.piano.beans.wechat.Code2SessionRsp;
 import com.piano.constants.AuthConstants;
+import com.piano.controllers.WechatApiController;
+import com.piano.exception.DailyCheckException;
+import com.piano.exception.WechatException;
 import com.piano.services.UserInfoService;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.*;
 import io.reactivex.Flowable;
@@ -45,6 +49,9 @@ public class WechatAuthenticationProvider implements AuthenticationProvider {
         try {
             UserInfo userInfo = sObjectMapper.readValue(Objects.requireNonNull(userInfoStr), UserInfo.class);
             String openId = userInfo.getOpenId();
+            if(StringUtils.isEmpty(openId)){
+                throw new DailyCheckException("登录失败,未获取到该用户的openId");
+            }
             Optional<UserInfo> userInfoOptional = userInfoService.findByOpenId(openId);
             if(userInfoOptional.isEmpty()){
                 logger.info("不存在的openId,创建新用户");

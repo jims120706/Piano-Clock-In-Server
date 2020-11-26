@@ -16,6 +16,7 @@ import java.util.Optional;
 @JdbcRepository(dialect= Dialect.MYSQL)
 public interface DailyCheckRepository extends CrudRepository<DailyCheck, Integer> {
     Optional<DailyCheck> findByUserIdAndCheckDateEquals(int id, LocalDateTime atStartOfDay);
+    List<DailyCheck> findByUserIdAndCheckDateBetween(int id, LocalDateTime start,LocalDateTime end);
 
     @Query(value="select ifNull(sum(hours),0) from dailyCheck where userId=:id")
     Optional<BigDecimal> sumHoursByUserId(int id);

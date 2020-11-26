@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller("/dailycheck")
 @Secured(SecurityRule.IS_AUTHENTICATED)
@@ -72,7 +74,14 @@ public class DailyCheckController {
         List<DailyCheck> monthsCheck = dailycheckService.hoursMonth(userInfo);
         return RespUtils.SUCCESS(monthsCheck);
     }
-
+    @Get("/hoursYear")
+    public HttpResponse hoursYear(Authentication authentication) {
+        UserInfo userInfo = getUserInfo(authentication);
+        List<DailyCheck> yearsList = dailycheckService.hoursYear(userInfo);
+        yearsList.forEach(x->x.setMonth(x.getCheckDate().getMonthValue()));
+        Map<Integer, List<DailyCheck>> result = yearsList.stream().collect(Collectors.groupingBy(DailyCheck::getMonth));
+        return RespUtils.SUCCESS(result);
+    }
 
     @Post("/findByCondition")
     public HttpResponse findByCondition(Authentication authentication, @Body SerchCondition condition) {
@@ -105,6 +114,13 @@ public class DailyCheckController {
         return RespUtils.SUCCESS_EMPTY();
     }
 
+    @Post("/hoursCommit")
+    public HttpResponse hoursCommit(Authentication authentication, long minutes) {
+        UserInfo userInfo = getUserInfo(authentication);
+        dailycheckService.hoursCommitDailyCheck(userInfo,minutes);
+        return RespUtils.SUCCESS_EMPTY();
+    }
+
     private UserInfo getUserInfo(Authentication authentication) {
         String userId = authentication.getName();
         Optional<UserInfo> userInfoOptional = userInfoService.findById(Integer.valueOf(userId));
@@ -119,6 +135,13 @@ public class DailyCheckController {
     public HttpResponse supply(Authentication authentication, String date, long minutes) {
         UserInfo userInfo = getUserInfo(authentication);
         dailycheckService.supplyDailyCheck(userInfo,date,minutes);
+        return RespUtils.SUCCESS_EMPTY();
+    }
+
+    @Post("/batchSupply")
+    public HttpResponse batchSupply(Authentication authentication, String startDate,String endDate, long minutes) {
+        UserInfo userInfo = getUserInfo(authentication);
+        dailycheckService.batchSupplyDailyCheck(userInfo,startDate,endDate,minutes);
         return RespUtils.SUCCESS_EMPTY();
     }
 }

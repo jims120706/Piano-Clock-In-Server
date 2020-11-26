@@ -1,5 +1,6 @@
 package com.piano.services;
 
+import com.mysql.cj.Constants;
 import com.piano.beans.db.DailyCheck;
 import com.piano.beans.db.DailyCheckLog;
 import com.piano.beans.db.UserInfo;
@@ -17,13 +18,16 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import java.beans.Transient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,7 +60,18 @@ public class DailyCheckService {
         }
         Duration duration = java.time.Duration.between(startTime, endTime);
         long minutes = duration.toMinutes();
-        BigDecimal hours = new BigDecimal(minutes).divide(new BigDecimal(60), 2,RoundingMode.HALF_UP);
+        processDailyCheckData(userInfo, startTime, endTime, today,CommonConstants.DAYLY_CHECK_TYPE_START_END, minutes);
+    }
+
+
+    @Transactional
+    public void hoursCommitDailyCheck(UserInfo userInfo, long minutes) {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        processDailyCheckData(userInfo, today, today, today,CommonConstants.DAYLY_CHECK_TYPE_HOURS, minutes);
+    }
+
+    private void processDailyCheckData(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, LocalDateTime today,int type, long minutes) {
+        BigDecimal hours = new BigDecimal(minutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
         logger.info("用户{}本次打卡时长:{}分,累计:{}小时",userInfo.getNickName(),minutes,hours);
         Optional<DailyCheck> todayCheckOptional = dailyCheckRepository.findByUserIdAndCheckDateEquals(userInfo.getId(), today);
         DailyCheck dailyCheck = new DailyCheck();
@@ -78,8 +93,10 @@ public class DailyCheckService {
         checkLog.setEndTime(endTime);
         checkLog.setUserId(userInfo.getId());
         checkLog.setHours(hours);
+        checkLog.setType(type);
         dailyCheckLogRepository.save(checkLog);
     }
+
 
     @Transactional
     public void supplyDailyCheck(UserInfo userInfo, String dateStr, long minutes) {
@@ -109,7 +126,47 @@ public class DailyCheckService {
         //补卡类型为2
         checkLog.setType(2);
         checkLog.setHours(hours);
+        checkLog.setType(CommonConstants.DAYLY_CHECK_TYPE_SUPPLY);
         dailyCheckLogRepository.save(checkLog);
+    }
+    @Transactional
+    public void batchSupplyDailyCheck(UserInfo userInfo, String startDate, String endDate, long minutes) {
+        //批量补卡,start-end 平均每日补卡
+        LocalDateTime startTime = LocalDate.parse(startDate, CommonConstants.dateFormatter).atStartOfDay();
+        LocalDateTime endTime = LocalDate.parse(endDate, CommonConstants.dateFormatter).atStartOfDay();
+        if(endTime.isAfter(LocalDate.now().atStartOfDay())){
+            throw new DailyCheckException("只能补过去的时间");
+        }
+        LocalDateTime conditionDate = startTime;
+        List<LocalDateTime> allDate = new ArrayList<>();
+        //生成每日数据
+        while(conditionDate.isBefore(endTime)){
+            allDate.add(conditionDate);
+            conditionDate = conditionDate.plusDays(1);
+        }
+        Map<LocalDateTime, DailyCheck> collect = dailyCheckRepository.findByUserIdAndCheckDateBetween(userInfo.getId(), startTime, endTime).stream().collect(Collectors.toMap(DailyCheck::getCheckDate, x -> x));
+        BigDecimal hours = new BigDecimal(minutes).divide(new BigDecimal(60), 2,RoundingMode.HALF_UP);
+        allDate.forEach(dateTime->{
+            DailyCheck dailyCheck = collect.get(dateTime);
+            if(dailyCheck == null){
+                dailyCheck = new DailyCheck();
+                dailyCheck.setUserId(userInfo.getId());
+                dailyCheck.setHours(hours);
+                dailyCheck.setCheckDate(dateTime);
+                dailyCheck = dailyCheckRepository.save(dailyCheck);
+            }else{
+                dailyCheck.setHours(dailyCheck.getHours().add(hours));
+                dailyCheckRepository.update(dailyCheck);
+            }
+            DailyCheckLog checkLog = new DailyCheckLog();
+            checkLog.setDailyCheckId(dailyCheck.getId());
+            checkLog.setStartTime(dateTime);
+            checkLog.setEndTime(dateTime);
+            checkLog.setUserId(userInfo.getId());
+            checkLog.setType(CommonConstants.DAYLY_CHECK_TYPE_SUPPLY);
+            checkLog.setHours(hours);
+            dailyCheckLogRepository.save(checkLog);
+        });
     }
 
     public HoursTotalVO userDetailInfo(UserInfo userInfo){
@@ -118,6 +175,7 @@ public class DailyCheckService {
         hoursTotalVO.setWeek(this.hoursWeek(userInfo));
         hoursTotalVO.setMonth(this.hoursMonth(userInfo));
         hoursTotalVO.setTotal(this.hoursTotal(userInfo));
+        hoursTotalVO.setYear(this.hoursYear(userInfo));
         return hoursTotalVO;
     }
 
@@ -140,7 +198,11 @@ public class DailyCheckService {
         LocalDateTime endTime = LocalDate.now().plusDays(1).atStartOfDay();
         return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
     }
-
+    public List<DailyCheck> hoursYear(UserInfo userInfo) {
+        LocalDateTime startTime = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        LocalDateTime endTime = LocalDate.now().plusYears(1).withDayOfYear(1).atStartOfDay();
+        return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),startTime,endTime);
+    }
     public Page<DailyCheck> findByCondition(UserInfo userInfo, SerchCondition condition) {
         return dailyCheckRepository.findByUserIdAndCheckDateBetweenOrderByCheckDateDesc(userInfo.getId(),condition.getStartTime(),condition.getEndTime(),Pageable.from(condition.getIndex(),condition.getSize()));
     }
@@ -159,4 +221,5 @@ public class DailyCheckService {
         }
         return bigDecimal;
     }
+
 }
