@@ -65,9 +65,9 @@ public class DailyCheckService {
 
 
     @Transactional
-    public void hoursCommitDailyCheck(UserInfo userInfo, long minutes) {
-        LocalDateTime today = LocalDate.now().atStartOfDay();
-        processDailyCheckData(userInfo, today, today, today,CommonConstants.DAYLY_CHECK_TYPE_HOURS, minutes);
+    public void hoursCommitDailyCheck(UserInfo userInfo, String date, long minutes) {
+        LocalDateTime dateTime = LocalDate.parse(date, CommonConstants.dateFormatter).atStartOfDay();
+        processDailyCheckData(userInfo, dateTime, dateTime, dateTime,CommonConstants.DAYLY_CHECK_TYPE_HOURS, minutes);
     }
 
     private void processDailyCheckData(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, LocalDateTime today,int type, long minutes) {

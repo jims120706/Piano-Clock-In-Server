@@ -115,9 +115,9 @@ public class DailyCheckController {
     }
 
     @Post("/hoursCommit")
-    public HttpResponse hoursCommit(Authentication authentication, long minutes) {
+    public HttpResponse hoursCommit(Authentication authentication, String date,long minutes) {
         UserInfo userInfo = getUserInfo(authentication);
-        dailycheckService.hoursCommitDailyCheck(userInfo,minutes);
+        dailycheckService.hoursCommitDailyCheck(userInfo,date,minutes);
         return RespUtils.SUCCESS_EMPTY();
     }
 
